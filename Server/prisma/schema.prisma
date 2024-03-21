@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model PROJECT {
+  ProjectId          Int       @id(map: "PK__PROJECT__761ABEF081FDDCE4")
+  ProjectName        String?   @db.VarChar(50)
+  ProjectDescription String?   @db.VarChar(50)
+  UserId             Int?      @unique(map: "UQ__PROJECT__1788CC4DAD197B0E")
+  USERTASK           USERTASK? @relation(fields: [UserId], references: [UserId], onDelete: NoAction, onUpdate: NoAction, map: "FK__PROJECT__UserId__4222D4EF")
+  TASK               TASK?
+}
+
+model TASK {
+  TaskId          Int             @id(map: "PK__TASK__7C6949B128CD217A")
+  TaskName        String?         @db.VarChar(50)
+  TaskDescription String?         @db.VarChar(200)
+  ProjectId       Int?            @unique(map: "UQ__TASK__761ABEF1421025FD")
+  PROJECT         PROJECT?        @relation(fields: [ProjectId], references: [ProjectId], onDelete: NoAction, onUpdate: NoAction, map: "FK__TASK__ProjectId__45F365D3")
+  USERTASK_TASK   USERTASK_TASK[]
+}
+
+model USERROLE {
+  UserRoleId Int       @id(map: "PK__USERROLE__3D978A358A90D222")
+  RoleName   String?   @unique(map: "UQ__USERROLE__8A2B6160F506939F") @db.VarChar(50)
+  USERTASK   USERTASK?
+}
+
+model USERTASK {
+  UserId        Int             @id(map: "PK__USERTASK__1788CC4CD0F2E970")
+  Username      String?         @unique(map: "UQ__USERTASK__536C85E4CC42B43A") @db.VarChar(50)
+  Password      String?         @db.VarChar(50)
+  FirstName     String?         @db.VarChar(50)
+  LastName      String?         @db.VarChar(50)
+  Email         String?         @unique(map: "UQ__USERTASK__A9D10534F5773B8A") @db.VarChar(100)
+  NumberPhone   String?         @unique(map: "UQ__USERTASK__A2BA67DAE0269DBD") @db.VarChar(15)
+  UserRoleID    Int?            @unique(map: "UQ__USERTASK__3D978A5429612FD3")
+  PROJECT       PROJECT?
+  USERROLE      USERROLE?       @relation(fields: [UserRoleID], references: [UserRoleId], onDelete: NoAction, onUpdate: NoAction, map: "FK__USERTASK__UserRo__3E52440B")
+  USERTASK_TASK USERTASK_TASK[]
+}
+
+model USERTASK_TASK {
+  IdUserTask Int       @id(map: "PK__USERTASK__41760B45B6410940")
+  UserId     Int?
+  TaskId     Int?
+  TASK       TASK?     @relation(fields: [TaskId], references: [TaskId], onDelete: NoAction, onUpdate: NoAction, map: "FK__USERTASK___TaskI__49C3F6B7")
+  USERTASK   USERTASK? @relation(fields: [UserId], references: [UserId], onDelete: NoAction, onUpdate: NoAction, map: "FK__USERTASK___UserI__48CFD27E")
+
+  @@unique([UserId, TaskId], map: "UQ__USERTASK__104E58D6F9903B52")
+}
